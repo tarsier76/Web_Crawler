@@ -58,7 +58,7 @@ describe('Gets URLs from HTML.', () => {
 
     testCases.forEach(({ htmlBody, baseURL, expected }) => {
         test('Extracting URLs from HTML...', () => {
-            expect(getURLSFromHTML(htmlBody, baseURL)).toBe(expected)
+            expect(getURLSFromHTML(htmlBody, baseURL)).toStrictEqual(expected)
         })
     })
 })
