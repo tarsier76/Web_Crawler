@@ -10,7 +10,7 @@ describe('Returns a constant normalized URL.', () => {
         { input: 'http://blog.boot.dev:80/path/', expected: 'blog.boot.dev/path' },
         { input: 'http://blog.boot.dev:443/path/', expected: 'blog.boot.dev/path' },
         { input: 'https://blog.boot.dev:80/path/', expected: 'blog.boot.dev/path' },
-        { input: 'https://blog.boot.dev:443/path/', expected: 'blog.boot.dev/path' },
+        { input: 'https://blog.boot.dev:443/path/asd', expected: 'blog.boot.dev/path/asd' },
         { input: 'https://blog.boot.dev:443/path', expected: 'blog.boot.dev/path' },
         { input: 'https://blog.boot.dev:443/path/?query=123', expected: 'blog.boot.dev/path' }
     ]
