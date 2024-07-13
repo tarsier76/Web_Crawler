@@ -27,11 +27,38 @@ function getURLSFromHTML(htmlBody, baseURL) {
     return urls;
 }
 
-async function crawlPage(currentURL) {
+async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
+    const baseDomain = new URL(baseURL).hostname
+    console.log(baseURL)
+    const currentDomain = new URL(currentURL).hostname
+    console.log(currentURL)
+    const normalizedCurrentURL = normalizeURL(currentURL)
+
+    if (baseDomain == currentDomain ) {
+        if (normalizedCurrentURL in pages) {
+            pages[normalizedCurrentURL]++
+        } else {
+            pages[normalizedCurrentURL] = 1
+        }
+        const listOfURLS = await fetchAndParse(currentURL, baseURL)
+        if (!listOfURLS == []) {
+            for (const URL of listOfURLS) {
+                crawlPage(baseURL, URL, pages)
+            } 
+        } else {
+            return pages
+        }
+    } else {
+        return pages
+    }
+    return pages
+}
+
+async function fetchAndParse(currentURL, baseURL) {
+    try {
     const response = await fetch(currentURL, {
         method: 'GET',
         mode: 'cors',
-        
     })
     if (response.status >= 400) {
         console.error(`Error: Response is error-level code ${response.status}`)
@@ -41,8 +68,10 @@ async function crawlPage(currentURL) {
         console.error(`Error: Invalid Content-Type (${response.headers.get('content-type')})`)
         return 
     } else {
-        console.log(await response.text())
+        const html = await response.text()
+        return getURLSFromHTML(html, baseURL)
     }
-
+    } catch (error) {
+        return
+    }
 }
-
