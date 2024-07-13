@@ -1,4 +1,5 @@
-export {normalizeURL}
+export {normalizeURL, getURLSFromHTML}
+import { JSDOM } from 'jsdom'
 
 function normalizeURL(url) {
     const URLobject = new URL(url)
@@ -9,3 +10,5 @@ function normalizeURL(url) {
         return completeURL
     }
 }
+
+function getURLSFromHTML() {}
