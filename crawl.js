@@ -1,4 +1,4 @@
-export {normalizeURL, getURLSFromHTML}
+export {normalizeURL, getURLSFromHTML, crawlPage}
 import { JSDOM } from 'jsdom'
 
 function normalizeURL(url) {
@@ -27,4 +27,22 @@ function getURLSFromHTML(htmlBody, baseURL) {
     return urls;
 }
 
-console.log(getURLSFromHTML(`<html><body><a href="https://blog.boot.dev"><span>Go to Boot.dev</span></a></body></html>`, "https://blog.boot.dev"));
+async function crawlPage(currentURL) {
+    const response = await fetch(currentURL, {
+        method: 'GET',
+        mode: 'cors',
+        
+    })
+    if (response.status >= 400) {
+        console.error(`Error: Response is error-level code ${response.status}`)
+        return 
+    }
+    if (!response.headers.get('Content-Type').includes('text/html')) {
+        console.error(`Error: Invalid Content-Type (${response.headers.get('content-type')})`)
+        return 
+    } else {
+        console.log(await response.text())
+    }
+
+}
+
