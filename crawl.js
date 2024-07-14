@@ -27,33 +27,6 @@ function getURLSFromHTML(htmlBody, baseURL) {
     return urls;
 }
 
-async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
-    const baseDomain = new URL(baseURL).hostname
-    console.log(baseURL)
-    const currentDomain = new URL(currentURL).hostname
-    console.log(currentURL)
-    const normalizedCurrentURL = normalizeURL(currentURL)
-
-    if (baseDomain == currentDomain ) {
-        if (normalizedCurrentURL in pages) {
-            pages[normalizedCurrentURL]++
-        } else {
-            pages[normalizedCurrentURL] = 1
-        }
-        const listOfURLS = await fetchAndParse(currentURL, baseURL)
-        if (!listOfURLS == []) {
-            for (const URL of listOfURLS) {
-                crawlPage(baseURL, URL, pages)
-            } 
-        } else {
-            return pages
-        }
-    } else {
-        return pages
-    }
-    return pages
-}
-
 async function fetchAndParse(currentURL, baseURL) {
     try {
     const response = await fetch(currentURL, {
@@ -62,16 +35,42 @@ async function fetchAndParse(currentURL, baseURL) {
     })
     if (response.status >= 400) {
         console.error(`Error: Response is error-level code ${response.status}`)
-        return 
+        return []
     }
     if (!response.headers.get('Content-Type').includes('text/html')) {
         console.error(`Error: Invalid Content-Type (${response.headers.get('content-type')})`)
-        return 
+        return []
     } else {
         const html = await response.text()
         return getURLSFromHTML(html, baseURL)
     }
     } catch (error) {
-        return
+        console.error(`Fetch error: ${error.message}`)
+        return []
     }
 }
+
+async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
+    const baseDomain = new URL(baseURL).hostname
+    const currentDomain = new URL(currentURL).hostname
+    const normalizedCurrentURL = normalizeURL(currentURL)
+
+    if (baseDomain !== currentDomain ) {
+        return pages
+    } 
+
+    if (normalizedCurrentURL in pages) {
+        pages[normalizedCurrentURL]++
+        return pages
+    } else {
+        pages[normalizedCurrentURL] = 1
+    }
+
+    const listOfURLS = await fetchAndParse(currentURL, baseURL)
+    for (const url of listOfURLS) {
+        await crawlPage(baseURL, url, pages)
+    }
+
+    return pages
+}
+
